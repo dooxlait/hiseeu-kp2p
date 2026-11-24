@@ -1,0 +1,13 @@
+[Unit]
+Description=Local RTSP relay (mediamtx) for kp2p NVR cameras
+After=network-online.target
+Wants=network-online.target
+Before=go2rtc.service
+
+[Service]
+ExecStart=/opt/mediamtx/mediamtx /opt/mediamtx/mediamtx.yml
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

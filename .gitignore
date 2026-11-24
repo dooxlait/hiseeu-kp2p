@@ -1,0 +1,8 @@
+# never commit passwords or recordings
+*.pass
+.env
+*.h264
+*.h265
+*.hevc
+*.mp4
+node_modules/

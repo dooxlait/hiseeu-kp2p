@@ -1,0 +1,34 @@
+# Excerpt of a Frigate configuration (tested with 0.18) using the relay (only the NVR cameras are shown).
+# go2rtc reads the local mediamtx relay; Frigate reads go2rtc's restream (port 8554).
+#
+# Use ONE stream per camera: opening the main AND the sub stream of the same camera at the same
+# time made the NVR answer with its "busy" placeholder picture during tests (see README, "Limits").
+# Frigate scales the HD stream down for detection, so detect + record on the same input is fine.
+
+go2rtc:
+  streams:
+    hiseeu_1:
+      - rtsp://127.0.0.1:8654/hiseeu_1        # main stream (HD, 2304x1296 here)
+    hiseeu_2:
+      - rtsp://127.0.0.1:8654/hiseeu_2        # main stream (HD)
+    hiseeu_3:
+      - rtsp://127.0.0.1:8654/hiseeu_3_sd     # sub stream (SD, 640x360): the NVR refused a 3rd HD stream
+    hiseeu_4:
+      - rtsp://127.0.0.1:8654/hiseeu_4_sd
+
+cameras:
+  hiseeu_1:
+    ffmpeg:
+      inputs:
+        - path: rtsp://127.0.0.1:8554/hiseeu_1
+          input_args: preset-rtsp-restream
+          roles: [detect, record]
+    detect:
+      width: 640
+      height: 360
+      fps: 5
+  # hiseeu_2, hiseeu_3, hiseeu_4: same block with their own stream name
+
+# The cameras are H.265. For clips that play on iPhone / Safari (hvc1 tag):
+ffmpeg:
+  apple_compatibility: true

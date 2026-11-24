@@ -1,0 +1,27 @@
+# Local RTSP relay (127.0.0.1 only) for the NVR cameras.
+# When a reader (go2rtc / Frigate / ffmpeg / VLC) opens rtsp://127.0.0.1:8654/hiseeu_N or hiseeu_N_sd,
+# mediamtx starts push.sh, which pulls the stream from the NVR (kp2p) and publishes it here.
+# It is stopped automatically 15 s after the last reader leaves.
+logLevel: warn
+rtsp: yes
+rtspAddress: 127.0.0.1:8654     # not exposed on the LAN; change to :8654 to reach it from other machines
+rtspTransports: [tcp]
+# Everything else disabled (recent mediamtx versions open several ports by default, e.g. MoQ on 8892/8893)
+rtmp: no
+hls: no
+webrtc: no
+srt: no
+api: no
+metrics: no
+pprof: no
+playback: no
+moq: no
+
+paths:
+  # hiseeu_1..hiseeu_4 = main streams (HD), hiseeu_1_sd..hiseeu_4_sd = sub streams (SD).
+  # Adapt [1-4] to the number of channels of your NVR.
+  "~^hiseeu_[1-4](_sd)?$":
+    runOnDemand: /opt/kp2p/push.sh $MTX_PATH
+    runOnDemandRestart: yes
+    runOnDemandStartTimeout: 20s
+    runOnDemandCloseAfter: 15s
